@@ -90,6 +90,7 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
     private String cropperToolbarColor = null;
     private String cropperToolbarTitle = null;
     private String cropperToolbarWidgetColor = null;
+    private int maximumVideoDuration = -1;
 
     private int width = 0;
     private int height = 0;
@@ -139,6 +140,7 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
         enableRotationGesture = options.hasKey("enableRotationGesture") && options.getBoolean("enableRotationGesture");
         disableCropperColorSetters = options.hasKey("disableCropperColorSetters") && options.getBoolean("disableCropperColorSetters");
         useFrontCamera = options.hasKey("useFrontCamera") && options.getBoolean("useFrontCamera");
+        maximumVideoDuration = options.hasKey("maximumVideoDuration") ? options.getInt("maximumVideoDuration") : -1;
         this.options = options;
     }
 
@@ -338,6 +340,10 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
 
             cameraIntent.putExtra(MediaStore.EXTRA_OUTPUT, mCameraCaptureURI);
 
+            if (Build.VERSION.SDK_INT >= 29 && maximumVideoDuration > 0) {
+                cameraIntent.putExtra(MediaStore.EXTRA_DURATION_LIMIT, maximumVideoDuration);
+            }
+
             if (this.useFrontCamera) {
                 cameraIntent.putExtra("android.intent.extras.CAMERA_FACING", 1);
                 cameraIntent.putExtra("android.intent.extras.LENS_FACING_FRONT", 1);
@@ -372,6 +378,10 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
                 galleryIntent.setType("*/*");
                 String[] mimetypes = {"image/*", "video/*"};
                 galleryIntent.putExtra(Intent.EXTRA_MIME_TYPES, mimetypes);
+            }
+
+            if (Build.VERSION.SDK_INT >= 29 && maximumVideoDuration > 0) {
+                galleryIntent.putExtra(MediaStore.EXTRA_DURATION_LIMIT, maximumVideoDuration);
             }
 
             galleryIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
